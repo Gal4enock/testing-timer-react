@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Button from '../Button/Button';
 
-import './App.css';
+import style from './App.module.css';
 
 function App() {
 
@@ -16,8 +16,9 @@ function App() {
   let newHours = hours;
 
   function pad(value) {
-  return String(value).padStart(2, '0');
+    return String(value).padStart(2, '0');
   };
+
 
   const hendlerStart = () => {
     setTimer ( setInterval(() => {
@@ -43,7 +44,7 @@ function App() {
         setMin('00');
       }
 
-    }, 100)
+    }, 1000)
     )
   }
 
@@ -57,7 +58,7 @@ function App() {
 
   const handlerReset = () => {
     handlerStop();
-    
+
     newSec = '00';
     newMin = '00';
     newHours = '00';
@@ -77,8 +78,8 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
+    <div className={style.App}>
+      <header className={style.App_header}>
         {hours} : {min} : {sec}
       </header>
       <main>

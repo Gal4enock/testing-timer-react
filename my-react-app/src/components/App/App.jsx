@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { interval } from 'rxjs';
+import { map } from 'rxjs/operators';
 import Button from '../Button/Button';
 
 import style from './App.module.css';
@@ -10,47 +12,54 @@ function App() {
   const [sec, setSec] = useState('00');
   const [timer, setTimer] = useState('');
   const [waiting, setWaiting] = useState(false);
+  const [diff, setDiff] = useState(0)
 
   let newSec = sec
   let newMin = min;
   let newHours = hours;
+  let newDiff = diff;
 
   function pad(value) {
     return String(value).padStart(2, '0');
   };
 
-
   const hendlerStart = () => {
-    setTimer ( setInterval(() => {
-     
-      if (newSec <= 59) {
-        newSec = pad( Number(newSec) + 1)
-        setSec(newSec)
-      }
-      
-      if (newSec === '60' && newMin <= 59) {
+    const timerSubscription = interval(100)
+      .pipe(map((v) => {
+        if (v > 0 && v % 60 === 0 || (v - newDiff) === 60) {
+          newDiff = v
+          setDiff(newDiff);
+        };
+       return v+1
+      }))
+        .subscribe((v) => {
+          newSec = pad(v - newDiff);
+          setSec(newSec);
+          if (newSec === '60' && newMin <= 59) {
         newSec = '00'
-        newMin = pad(Number(newMin) + 1)
-        setMin(newMin);
         setSec('00');
+        newMin = pad(Number(newMin) +1)
+        setMin(newMin);
       }
 
-      if (newMin === '60' && newHours <= 59) {
+          if (newMin === '60' && newHours <= 59) {
         newSec = '00';
         newMin = '00';
-        newHours = pad(Number(newHours) + 1)
-        setMin(newHours);
         setSec('00');
         setMin('00');
+        newHours = pad(Number(newHours) + 1)
+        setMin(newHours);
       }
-
-    }, 1000)
-    )
+        });
+      setTimer(timerSubscription);
+    
   }
 
-  const handlerStop = () => {
-    clearInterval(timer);
 
+  const handlerStop = () => {
+    timer.unsubscribe()
+    newDiff = 0;
+    setDiff(0);
     setSec('00');
     setHours('00');
     setMin('00');
@@ -72,7 +81,9 @@ function App() {
     const timeoutID = setTimeout(() => setWaiting(false), 300)
 
     if (waiting) {
-      clearInterval(timer);
+      timer.unsubscribe()
+      newDiff = -newSec
+      setDiff(-newSec);
       clearTimeout(timeoutID);
     }
   }

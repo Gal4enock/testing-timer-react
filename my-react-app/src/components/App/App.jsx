@@ -24,7 +24,7 @@ function App() {
   };
 
   const hendlerStart = () => {
-    const timerSubscription = interval(100)
+    const timerSubscription = interval(1000)
       .pipe(map((v) => {
         if (v > 0 && v % 60 === 0 || (v - newDiff) === 60) {
           newDiff = v
